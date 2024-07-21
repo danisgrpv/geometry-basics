@@ -2,6 +2,7 @@
 
 import numbers
 import numpy as np
+import scipy as sc
 
 # Point class implementation
 # --------------------------
@@ -74,8 +75,6 @@ class Point:
         t0, dt = args
         tangent_sp = Point(*curve.TangLine(t0).value(t0))
         tangent_ep = Point(*curve.TangLine(t0).value(t0+dt))
-        # tangent_sp = Point(*curve.tang(t0, t0).T[0])
-        # tangent_ep = Point(*curve.tang(t0, t0+dt).T[0])
         
         # Вектор от проецируемой точки до точки касания
         vector1 = self - tangent_sp
@@ -85,7 +84,33 @@ class Point:
         scalar_product = (vector1 * vector2) / np.linalg.norm(vector2)**2
         res = tangent_sp + scalar_product * vector2
         return res
+    
 
+    def obj(self, t, curve):
+        """
+        Целевая функция для поиска параметра,
+        соответствующего точке проекции
+        """
+        dt = 1
+        line = curve.TangLine(t)
+        # q_ = self.projection(line, t, dt)
+        v1 = self - Point(*line.value(t))
+        v2 = Point(*line.value(t)) - Point(*line.value(t+dt))
+        k = 1
+        out = k * (v1 * v2)**2
+        return np.sum(out)
+    
+
+    def projection_loop(self, t0, curve):
+        """
+        Возвращает параметр точки проекции,
+        найденный с помощью решения задачи
+        минимизации целевой функции
+        """
+        func = lambda t: self.obj(t, curve=curve)
+        res = sc.optimize.minimize(fun=func, x0=t0)
+        return res.x[0]
+    
 
 # Vector class implementation
 # ---------------------------
