@@ -6,35 +6,35 @@ from basics import Point, Vector, ParametricCurve
 # Define the parametric curve by equations
 # and its derivatives
 
-def x(t, r=1):
-    return r * np.cos(t)
+def x(t, x0=1):
+    return 0.5 * x0 * t**2
 
-def y(t, r=1):
-    return r * np.sin(t)
+def y(t, y0=1):
+    return y0 * t
 
-def dxdt(t, r=1):
-    return -r * np.sin(t)
+def dxdt(t, x0=1):
+    return x0 * t
 
-def dydt(t, r=1):
-    return r * np.cos(t)
+def dydt(t, y0=1):
+    return y0 * t**0
 
 
 # Point to project
-q = Point(1, 1)
+q = Point(2, 5)
 # The scope of the parameter definition and parameter values
 t0, tT = 0, 2 * np.pi
 t = np.linspace(t0, tT, 101)
 
 # Create the instance of parametric curve
-circle = ParametricCurve(x, y, dxdt, dydt)
+parabola = ParametricCurve(x, y, dxdt, dydt)
 # Find the parameter t of projection point
-t_ = q.projection_loop(1, circle)
+t_ = q.projection_loop(3, parabola)
 # Calculate coorditanes of projecton point by parameter value
-q_pr = Point(*circle.value(t_))
+q_pr = Point(*parabola.value(t_))
 # Find the normal vector of projection
 normal = np.vstack([q.coords, q_pr.coords]).T
 # Find the tangent line in projection point
-tline = circle.TangLine(t_)
+tline = parabola.TangLine(t_)
 
 # Test: if projection calculated good the scalar product is close to zero 
 v1 = q_pr - q
@@ -45,10 +45,10 @@ print('Angle is: ', 180 * np.arccos(cos) / np.pi)
 
 # Plot the objects
 fig, ax = plt.subplots(figsize=(6, 6))
-ax.plot(*circle.value(t), color='b', lw=0.6)
+ax.plot(*parabola.value(t), color='b', lw=0.6)
 ax.plot(*tline.value(t), color='r', lw=0.6)
 ax.plot(*normal, color='k', lw=0.6, linestyle='--')
-ax.scatter(*circle.value(t_), s=20, color='#00FF00')
+ax.scatter(*parabola.value(t_), s=20, color='#00FF00')
 ax.scatter(*q.coords, s=20, color='k')
 ax.scatter(*q_pr.coords, s=20, color='r')
 plt.show()
